@@ -3,7 +3,7 @@
 __all__ = ('FTDISerializerDevice', 'FTDIPinDevice')
 
 from moa.threads import ScheduledEventLoop
-from moa.device.gate import DigitalPort
+from moa.device.digital import DigitalPort
 
 
 class FTDISerializerDevice(ScheduledEventLoop, DigitalPort):

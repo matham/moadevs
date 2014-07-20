@@ -4,7 +4,7 @@ __all__ = ('MCDAQDevice', )
 
 
 from moa.threads import ScheduledEventLoop
-from moa.device.gate import DigitalPort
+from moa.device.digital import DigitalPort
 
 
 class MCDAQDevice(ScheduledEventLoop, DigitalPort):
