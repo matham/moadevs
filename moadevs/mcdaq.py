@@ -70,6 +70,7 @@ class MCDAQDevice(ScheduledEventLoop, DigitalPort):
                 self._canceling = False
                 if self.input and len(self._activated_set):
                     self._read_event = self.request_callback(name='read',
-                        repeat=True)
-            self.request_callback('cancel_read', flush=True)
+                                                             repeat=True)
+            self.request_callback('cancel_read', callback=post_cancel,
+                                  flush=True)
         return True

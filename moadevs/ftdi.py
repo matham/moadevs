@@ -70,7 +70,7 @@ class FTDISerializerDevice(ScheduledEventLoop, DigitalPort):
                 self._canceling = False
                 if self.input and len(self._activated_set):
                     self._read_event = self.request_callback(name='read',
-                        repeat=True)
+                                                             repeat=True)
             self.request_callback('cancel_read', callback=post_cancel,
                                   flush=True)
         return True
@@ -114,7 +114,8 @@ class FTDIPinDevice(ScheduledEventLoop, DigitalPort):
         for name in low:
             mask |= (1 << mapping[name])
 
-        self.request_callback('write', callback=lambda *x: 10, data=[(1, val, mask)])
+        self.request_callback('write', callback=lambda *x: 10,
+                              data=[(1, val, mask)])
 
     def activate(self, *largs, **kwargs):
         if not super(FTDIPinDevice, self).activate(*largs, **kwargs):
@@ -140,6 +141,7 @@ class FTDIPinDevice(ScheduledEventLoop, DigitalPort):
                 self._canceling = False
                 if self.input and len(self._activated_set):
                     self._read_event = self.request_callback(name='read',
-                        repeat=True)
-            self.request_callback('cancel_read', flush=True)
+                                                             repeat=True)
+            self.request_callback('cancel_read', callback=post_cancel,
+                                  flush=True)
         return True
