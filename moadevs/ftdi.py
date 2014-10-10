@@ -1,9 +1,10 @@
 
 
-__all__ = ('FTDISerializerDevice', 'FTDIPinDevice')
+__all__ = ('FTDISerializerDevice', 'FTDIPinDevice', 'FTDIADCDevice')
 
 from moa.threads import ScheduledEventLoop
 from moa.device.digital import DigitalPort
+from moa.device.adc import ADCPort
 
 
 class FTDISerializerDevice(ScheduledEventLoop, DigitalPort):
@@ -144,4 +145,67 @@ class FTDIPinDevice(ScheduledEventLoop, DigitalPort):
                                                              repeat=True)
             self.request_callback('cancel_read', callback=post_cancel,
                                   flush=True)
+        return True
+
+
+class FTDIADCDevice(ScheduledEventLoop, ADCPort):
+
+    _read_event = None
+    _state_event = None
+    _canceling = False
+
+    def __init__(self, **kwargs):
+        super(FTDIADCDevice, self).__init__(**kwargs)
+        self.num_channels = 2
+        self.raw_data = [None, None]
+        self.data = [None, None]
+        self.ts_idx = [0, 0]
+        self.active_channels = [False, False]
+
+        def read_callback(result, **kwargs):
+            self.raw_data[0] = result.chan1_raw
+            self.raw_data[1] = result.chan2_raw
+            self.data[0] = result.chan1_data
+            self.data[1] = result.chan2_data
+            self.ts_idx[0] = result.chan1_ts_idx
+            self.ts_idx[1] = result.chan2_ts_idx
+            self.timestamp = result.ts
+        self.request_callback(name='read', callback=read_callback,
+                              trigger=False, repeat=True, unique=False)
+
+    def _set_state(self, result):
+        self._read_event = self.request_callback(name='read', repeat=True)
+
+    def activate(self, *largs, **kwargs):
+        if not super(FTDIADCDevice, self).activate(*largs, **kwargs):
+            return False
+        if self._canceling:
+            return True
+
+        self._state_event = self.request_callback(
+            name='set_state', callback=self._set_state, state=True)
+        return True
+
+    def deactivate(self, *largs, **kwargs):
+        if not super(FTDIADCDevice, self).deactivate(*largs, **kwargs):
+            return False
+        if self._canceling:
+            return True
+
+        self.remove_request('read', self._read_event)
+        self.remove_request('set_state', self._state_event)
+        self._read_event = None
+        self._state_event = None
+        self._canceling = True
+
+        def post_cancel(result, *kw):
+            self._canceling = False
+            try:
+                self.target.read()
+            except:
+                pass
+            if len(self._activated_set):  # we need to activate again
+                self._state_event = self.request_callback(
+                    name='set_state', callback=self._set_state, state=True)
+        self.request_callback('set_state', callback=post_cancel, state=False)
         return True
