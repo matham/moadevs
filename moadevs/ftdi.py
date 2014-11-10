@@ -163,13 +163,13 @@ class FTDIADCDevice(ScheduledEventLoop, ADCPort):
         self.active_channels = [False, False]
 
         def read_callback(result, **kwargs):
+            self.timestamp = result.ts
             self.raw_data[0] = result.chan1_raw
             self.raw_data[1] = result.chan2_raw
-            self.data[0] = result.chan1_data
-            self.data[1] = result.chan2_data
             self.ts_idx[0] = result.chan1_ts_idx
             self.ts_idx[1] = result.chan2_ts_idx
-            self.timestamp = result.ts
+            self.data[0] = result.chan1_data
+            self.data[1] = result.chan2_data
         self.request_callback(name='read', callback=read_callback,
                               trigger=False, repeat=True, unique=False)
 
