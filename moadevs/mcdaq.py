@@ -56,7 +56,7 @@ class MCDAQDevice(ScheduledEventLoop, DigitalPort):
         if self.activation != 'active':
             raise TypeError('Can only read state of an active device. Device '
                             'is currently "{}"'.format(self.activation))
-        if 'i' in self.direction and self.target.continuous:
+        if 'i' in self.direction:
             return
         self._read_event = self.request_callback(name='read')
 
@@ -67,7 +67,7 @@ class MCDAQDevice(ScheduledEventLoop, DigitalPort):
             return False
         self.activation = 'active'
 
-        if 'i' in self.direction and self.target.continuous:
+        if 'i' in self.direction:
             self._read_event = self.request_callback(name='read', repeat=True)
         return True
 

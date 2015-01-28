@@ -54,16 +54,6 @@ class FTDISerializerDevice(ScheduledEventLoop, DigitalPort):
                               set_high=[attr_map[name] for name in high],
                               set_low=[attr_map[name] for name in low])
 
-    def get_state(self):
-        if self.activation != 'active':
-            raise TypeError('Can only read state of an active device. Device '
-                            'is currently "{}"'.format(self.activation))
-        if 'i' not in self.direction:
-            raise TypeError('Cannot read state for a output device')
-        if self.target.continuous:
-            return
-        self._read_event = self.request_callback(name='read')
-
     def activate(self, *largs, **kwargs):
         if self.activation == 'deactivating':
             raise TypeError('Cannot activate while deactivating')
@@ -71,7 +61,7 @@ class FTDISerializerDevice(ScheduledEventLoop, DigitalPort):
             return False
         self.activation = 'active'
 
-        if 'i' in self.direction and self.target.continuous:
+        if 'i' in self.direction:
             self._read_event = self.request_callback(name='read', repeat=True)
         return True
 
@@ -144,16 +134,6 @@ class FTDIPinDevice(ScheduledEventLoop, DigitalPort):
 
         self.request_callback('write', data=[(1, val, mask)])
 
-    def get_state(self):
-        if self.activation != 'active':
-            raise TypeError('Can only read state of an active device. Device '
-                            'is currently "{}"'.format(self.activation))
-        if 'i' not in self.direction:
-            raise TypeError('Cannot read state for a output device')
-        if self.target.continuous:
-            return
-        self._read_event = self.request_callback(name='read')
-
     def activate(self, *largs, **kwargs):
         if self.activation == 'deactivating':
             raise TypeError('Cannot activate while deactivating')
@@ -161,7 +141,7 @@ class FTDIPinDevice(ScheduledEventLoop, DigitalPort):
             return False
         self.activation = 'active'
 
-        if 'i' in self.direction and self.target.continuous:
+        if 'i' in self.direction:
             self._read_event = self.request_callback(name='read', repeat=True)
         return True
 
