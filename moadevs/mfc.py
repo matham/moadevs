@@ -32,7 +32,7 @@ class MFC(ScheduledEventLoop, AnalogChannel):
     _rate_pat = None
 
     def __init__(self, **kw):
-        super(MFC, self).__init__(**kw)
+        super(MFC, self).__init__(cls_method=False, **kw)
         self.target = SerialChannel(server=self.server,
             port_name=self.mfc_port_name, max_write=96, max_read=96,
             baud_rate=9600, stop_bits=1, parity='none', byte_size=8)
@@ -90,6 +90,7 @@ class MFC(ScheduledEventLoop, AnalogChannel):
     def _set_state_from_mfc(self, res):
         self.timestamp = res[0]
         self.state = res[1]
+        self.dispatch('on_data_update', self)
 
     def set_state(self, state, **kwargs):
         self.request_callback('set_mfc_rate', val=state)
@@ -98,6 +99,7 @@ class MFC(ScheduledEventLoop, AnalogChannel):
         if not super(MFC, self).activate(*largs, **kwargs):
             return False
 
+        self.activation = 'active'
         self._read_event = self.request_callback(name='get_mfc_rate',
             callback=self._set_state_from_mfc, repeat=True)
         return True
@@ -106,6 +108,7 @@ class MFC(ScheduledEventLoop, AnalogChannel):
         if not super(MFC, self).deactivate(*largs, **kwargs):
             return False
 
+        self.activation = 'inactive'
         self.remove_request('get_mfc_rate', self._read_event)
         self._read_event = None
         return True
