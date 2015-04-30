@@ -59,7 +59,6 @@ class FTDISerializerDevice(ScheduledEventLoop, DigitalPort):
             raise TypeError('Cannot activate while deactivating')
         if not super(FTDISerializerDevice, self).activate(*largs, **kwargs):
             return False
-        self.activation = 'active'
 
         if 'i' in self.direction:
             self._read_event = self.request_callback(name='read', repeat=True)
@@ -70,6 +69,7 @@ class FTDISerializerDevice(ScheduledEventLoop, DigitalPort):
         '''
         if self.activation == 'activating':
             raise TypeError('Cannot deactivate while activating')
+        kwargs['state'] = 'deactivating'
         if not super(FTDISerializerDevice, self).deactivate(*largs, **kwargs):
             return False
         if 'i' not in self.direction:
@@ -139,7 +139,6 @@ class FTDIPinDevice(ScheduledEventLoop, DigitalPort):
             raise TypeError('Cannot activate while deactivating')
         if not super(FTDIPinDevice, self).activate(*largs, **kwargs):
             return False
-        self.activation = 'active'
 
         if 'i' in self.direction:
             self._read_event = self.request_callback(name='read', repeat=True)
@@ -150,6 +149,7 @@ class FTDIPinDevice(ScheduledEventLoop, DigitalPort):
         '''
         if self.activation == 'activating':
             raise TypeError('Cannot deactivate while activating')
+        kwargs['state'] = 'deactivating'
         if not super(FTDIPinDevice, self).deactivate(*largs, **kwargs):
             return False
         if 'i' not in self.direction:
@@ -202,7 +202,6 @@ class FTDIADCDevice(ScheduledEventLoop, ADCPort):
             raise TypeError('Cannot activate while deactivating')
         if not super(FTDIADCDevice, self).activate(*largs, **kwargs):
             return False
-        self.activation = 'active'
 
         # first set state to active
         self._state_event = self.request_callback(
@@ -214,6 +213,7 @@ class FTDIADCDevice(ScheduledEventLoop, ADCPort):
         '''
         if self.activation == 'activating':
             raise TypeError('Cannot deactivate while activating')
+        kwargs['state'] = 'deactivating'
         if not super(FTDIADCDevice, self).deactivate(*largs, **kwargs):
             return False
 

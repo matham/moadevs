@@ -99,7 +99,6 @@ class MFC(ScheduledEventLoop, AnalogChannel):
         if not super(MFC, self).activate(*largs, **kwargs):
             return False
 
-        self.activation = 'active'
         self._read_event = self.request_callback(name='get_mfc_rate',
             callback=self._set_state_from_mfc, repeat=True)
         return True
@@ -108,7 +107,6 @@ class MFC(ScheduledEventLoop, AnalogChannel):
         if not super(MFC, self).deactivate(*largs, **kwargs):
             return False
 
-        self.activation = 'inactive'
         self.remove_request('get_mfc_rate', self._read_event)
         self._read_event = None
         return True

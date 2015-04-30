@@ -65,7 +65,6 @@ class MCDAQDevice(ScheduledEventLoop, DigitalPort):
             raise TypeError('Cannot activate while deactivating')
         if not super(MCDAQDevice, self).activate(*largs, **kwargs):
             return False
-        self.activation = 'active'
 
         if 'i' in self.direction:
             self._read_event = self.request_callback(name='read', repeat=True)
@@ -76,6 +75,7 @@ class MCDAQDevice(ScheduledEventLoop, DigitalPort):
         '''
         if self.activation == 'activating':
             raise TypeError('Cannot deactivate while activating')
+        kwargs['state'] = 'deactivating'
         if not super(MCDAQDevice, self).deactivate(*largs, **kwargs):
             return False
 
